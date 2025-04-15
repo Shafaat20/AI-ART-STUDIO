@@ -1,0 +1,159 @@
+{% extends 'layout.html' %}
+
+{% block title %}AI Art Studio - Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="container">
+        <div class="profile-content">
+            <div class="profile-tabs">
+                <div class="profile-tab-buttons">
+                    <button class="profile-tab-button active" data-tab="profile">Profile</button>
+                    <button class="profile-tab-button" data-tab="gallery">My Gallery</button>
+                </div>
+                
+                <div class="profile-tab-content active" id="profile-tab">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h2>{{ user.name or user.username }}</h2>
+                                <p>@{{ user.username }}</p>
+                            </div>
+                        </div>
+                        
+                        <form action="{{ url_for('profile') }}" method="post" class="profile-form">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" name="name" value="{{ user.name or '' }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" value="{{ user.username }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" value="{{ user.email }}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bio">Bio</label>
+                                <input type="text" id="bio" name="bio" value="{{ user.bio or '' }}">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="profile-tab-content" id="gallery-tab">
+                    <div class="profile-card">
+                        <div class="gallery-header">
+                            <h2>My Generated Artwork</h2>
+                            <p>View and manage all your AI-generated creations</p>
+                        </div>
+                        
+                        <div class="gallery-grid" id="gallery-grid">
+                            <!-- Images will be loaded here via JavaScript -->
+                            <div class="gallery-empty">
+                                <p>No images yet. Start generating some artwork!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.profile-tab-button');
+        const tabContents = document.querySelectorAll('.profile-tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                
+                // Load gallery images when gallery tab is selected
+                if (tabName === 'gallery') {
+                    loadGalleryImages();
+                }
+            });
+        });
+        
+        // Load user's gallery images
+        async function loadGalleryImages() {
+            const galleryGrid = document.getElementById('gallery-grid');
+            
+            try {
+                const response = await fetch('/api/get_user_images');
+                const data = await response.json();
+                
+                if (data.images && data.images.length > 0) {
+                    // Clear the gallery
+                    galleryGrid.innerHTML = '';
+                    
+                    // Add each image to the gallery
+                    data.images.forEach(image => {
+                        const imageElement = document.createElement('div');
+                        imageElement.className = 'gallery-item';
+                        imageElement.innerHTML = `
+                            <img src="${image.url}" alt="${image.prompt}">
+                            <div class="gallery-item-overlay">
+                                <p>${image.prompt}</p>
+                                <button class="btn btn-small" onclick="downloadImage('${image.url}')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        `;
+                        galleryGrid.appendChild(imageElement);
+                    });
+                } else {
+                    galleryGrid.innerHTML = `
+                        <div class="gallery-empty">
+                            <p>No images yet. Start generating some artwork!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading gallery images:', error);
+                galleryGrid.innerHTML = `
+                    <div class="gallery-empty">
+                        <p>Error loading images. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Make downloadImage function available globally
+        window.downloadImage = function(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ai-generated-art.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+    });
+</script>
+{% endblock %}
+

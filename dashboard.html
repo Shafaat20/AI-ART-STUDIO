@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}AI Art Studio - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="container">
+        <div class="dashboard-content">
+            <h1 class="dashboard-title">Welcome to Your Creative Space</h1>
+            
+            <div class="quote-card">
+                <blockquote>
+                    "{{ quote }}"
+                </blockquote>
+                
+                <a href="{{ url_for('generate') }}" class="btn btn-primary">
+                    <i class="fas fa-sparkles"></i>
+                    Generate Your Art
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                    
+            </div>
+            
+            <div class="dashboard-cards">
+                <div class="dashboard-card">
+                    <h3>Recent Creations</h3>
+                    <p>View your recently generated artwork and continue your creative journey.</p>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Trending Prompts</h3>
+                    <p>Explore popular prompts from the community to inspire your next creation.</p>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Tips & Tricks</h3>
+                    <p>Learn how to craft effective prompts to get the best results from the AI.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
