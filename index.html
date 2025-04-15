@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block title %}AI Art Studio - Welcome{% endblock %}
+
+{% block content %}
+<div class="welcome-page">
+    <div class="container">
+        <div class="welcome-content">
+            <h1 class="welcome-title">
+                <span class="gradient-text">AI Art Studio</span>
+            </h1>
+            <p class="welcome-description">
+                Transform your imagination into stunning visuals with our AI-powered image generation tool.
+                Create unique artwork from simple text descriptions in seconds.
+            </p>
+            <div class="welcome-buttons">
+                <a href="{{ url_for('auth') }}" class="btn btn-primary">
+                    Generate Your Art
+                    <i class="fas fa-arrow-right"></i>
+                    
+                </a>
+            </div>
+            
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <h3>Powerful AI</h3>
+                    <p>Leveraging OpenAI's cutting-edge image generation technology to create stunning visuals.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Easy to Use</h3>
+                    <p>Simply describe what you want to see, and our AI will bring your vision to life.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Save & Share</h3>
+                    <p>Download your creations and share them with friends, family, or on social media.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

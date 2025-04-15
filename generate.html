@@ -1,0 +1,151 @@
+{% extends 'layout.html' %}
+
+{% block title %}AI Art Studio - Generate Image{% endblock %}
+
+{% block content %}
+<div class="generate-page">
+    <div class="container">
+        <div class="generate-content">
+            <div class="generate-header">
+                <h1>Generate AI Art</h1>
+                <p>Describe what you want to see, and our AI will create it for you.</p>
+            </div>
+            
+            <div class="generate-form-card">
+                <div class="generate-form">
+                    <textarea id="prompt-input" placeholder="Describe the image you want to generate... (e.g., 'A surreal landscape with floating islands and waterfalls, digital art style')" +"form-row" + "resolution"></textarea>
+                    
+                    <button id="generate-button" class="btn btn-primary btn-block">
+                        <i class="fas fa-sparkles"></i>
+                        Generate Image
+                    </button>
+                </div>
+            </div>
+            
+            <div class="generate-tips">
+                <div class="tips-card">
+                    <h3>Prompt Tips</h3>
+                    <ul>
+                        <li>Be specific about art style (e.g., oil painting, digital art)</li>
+                        <li>Include details about lighting, mood, and colors</li>
+                        <li>Mention specific artists for stylistic influence</li>
+                        <li>Describe the composition and perspective</li>
+                    </ul>
+                </div>
+                
+                <div class="tips-card">
+                    <h3>Examples</h3>
+                    <ul class="examples-list">
+                        <li><span class="arrow">→</span> "A cyberpunk cityscape at night with neon lights and rain"</li>
+                        <li><span class="arrow">→</span> "Portrait of a fantasy character with glowing eyes, digital art"</li>
+                        <li><span class="arrow">→</span> "Underwater scene with bioluminescent creatures, vibrant colors"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="image-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Your Generated Artwork</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="generated-image-container">
+                    <img id="generated-image" src="/placeholder.svg" alt="AI Generated Art">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="download-button" class="btn btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Download
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Generating your artwork...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const promptInput = document.getElementById('prompt-input');
+        const generateButton = document.getElementById('generate-button');
+        const generate = document.getElementById('forms-now')
+        const imageModal = document.getElementById('image-modal');
+        const modalClose = document.querySelector('.modal-close');
+        const generatedImage = document.getElementById('generated-image');
+        const downloadButton = document.getElementById('download-button');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        generateButton.addEventListener('click', async () => {
+            const prompt = promptInput.value.trim();
+
+            if (!prompt || prompt.length < 5) {
+                alert('Please enter a valid prompt with at least 5 characters.');
+                return;
+            }
+
+            loadingOverlay.classList.add('active');
+
+            try {
+                const apiUrl = '/api/generate_image'; // Replace with the full URL if needed
+                console.log('Sending request to:', apiUrl); // Debugging
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response:', data); // Debugging
+
+                if (data.success) {
+                    generatedImage.src = data.data.url;
+                    loadingOverlay.classList.remove('active');
+                    imageModal.classList.add('active');
+                } else {
+                    throw new Error(data.error || 'Failed to generate image');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`An error occurred: ${error.message}`);
+                loadingOverlay.classList.remove('active');
+            }
+        });
+
+        modalClose.addEventListener('click', () => {
+            imageModal.classList.remove('active');
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                imageModal.classList.remove('active');
+            }
+        });
+
+        downloadButton.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = generatedImage.src;
+            link.download = 'ai-generated-art.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+</script>
+{% endblock %}
+
